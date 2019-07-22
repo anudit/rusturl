@@ -27,30 +27,42 @@ fn main() {
 
 fn handle_connection(mut stream: TcpStream) {
 
+	let mut DIRNAME = "web/".to_string();
+
 	let mut buffer = [0; 512];
 
 	stream.read(&mut buffer).unwrap();
 
-
 	//define routes
 	let get = b"GET / HTTP/1.1\r\n";
-	let sleep = b"GET /sleep HTTP/1.1\r\n";
+	let short = b"GET /short HTTP/1.1\r\n";
 
 	//control routes
-	let (status_line, filename) = if buffer.starts_with(get) {
-		("HTTP/1.1 200 OK\r\n\r\n", "hello.html")
+	let (status_line, filedata, is_file) = if buffer.starts_with(get) {
+		("HTTP/1.1 200 OK\r\n\r\n", format!("{}hello.html", DIRNAME), true)
 	}
-	else if buffer.starts_with(sleep) {
-		("HTTP/1.1 200 OK\r\n\r\n", "hello.html")
+	else if buffer.starts_with(short) {
+
+		let response = "42".to_string();
+
+		("HTTP/1.1 200 OK\r\n\r\n", format!("{}", response).to_string(), false)
 	}
 	else {
-		("HTTP/1.1 404 NOT FOUND\r\n\r\n", "404.html")
+		("HTTP/1.1 404 NOT FOUND\r\n\r\n", format!("{}404.html", DIRNAME), true)
 	};
 
-    let mut file = File::open(filename).unwrap();
-    let mut contents = String::new();
+	//render response
+	let mut contents = String::new();
 
-    file.read_to_string(&mut contents).unwrap();
+	if( is_file == true ){
+
+		let mut file = File::open(filedata).unwrap();
+		file.read_to_string(&mut contents).unwrap();
+
+	}
+	else{
+		contents = filedata;
+	}
 
     let response = format!("{}{}", status_line, contents);
 
