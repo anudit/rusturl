@@ -1,4 +1,7 @@
 extern crate webserver;
+mod redis_controller;
+extern crate elapsed;
+use elapsed::measure_time;
 
 use webserver::ThreadPool;
 use std::net::TcpListener;
@@ -10,7 +13,7 @@ use std::time::Duration;
 
 fn main() {
 
-	let listener = TcpListener::bind("127.0.0.1:8080").unwrap();
+	let listener = TcpListener::bind("127.0.0.1:8000").unwrap();
 	let pool = ThreadPool::new(4);
 
 	for stream in listener.incoming() {
@@ -43,7 +46,13 @@ fn handle_connection(mut stream: TcpStream) {
 	}
 	else if buffer.starts_with(short) {
 
+		let (elapsed, sum) = measure_time(|| {
+			redis_controller::test_run();
+		});
+		println!("elapsed = {}", elapsed);
+
 		let response = "42".to_string();
+
 
 		("HTTP/1.1 200 OK\r\n\r\n", format!("{}", response).to_string(), false)
 	}

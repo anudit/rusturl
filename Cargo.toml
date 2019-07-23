@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["Anudit Nagar <nagaranudit@gmail.com>"]
 
 [dependencies]
+redis = "*"
+elapsed = "0.1"
