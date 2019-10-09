@@ -1,10 +1,8 @@
 extern crate redis;
-
-#[allow(unused_imports)]
-// use redis::{Client, Commands, Connection, RedisResult};
 use std::error::Error;
 
 fn store(con: &mut redis::Connection, id: &String, link: &String) -> redis::RedisResult<()> {
+
     let _ : () = redis::cmd("SET").arg(id).arg(link).query(con)?;
     print!("[STORED] {}:{}\n", id, link);
     Ok(())
@@ -43,7 +41,7 @@ fn print_header() {
 
 }
 
-fn test_run() -> redis::RedisResult<()>  {
+pub fn test_run() -> redis::RedisResult<()>  {
 
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_connection()?;
